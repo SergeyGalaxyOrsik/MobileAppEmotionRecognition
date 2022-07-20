@@ -1,0 +1,359 @@
+
+
+WindowManager:
+    RegistrationWindow:
+    SecondWindow:
+    SingInWindow:
+    EmployeeCard:
+
+<ContentNavigationDrawer>:
+
+    ScrollView:
+
+        MDList:
+
+            OneLineListItem:
+                text: "Employee photo"
+                on_press:
+                    root.nav_drawer.set_state("close")
+                    root.screen_manager.current = "EmployeePhoto"
+                    root.screen_manager.transition.direction = "right"
+
+            OneLineListItem:
+                text: "Table"
+                on_press:
+                    root.nav_drawer.set_state("close")
+                    root.screen_manager.current = "Table"
+                    root.screen_manager.transition.direction = "left"
+
+<RegistrationWindow>:
+    name: "Registration"
+    md_bg_color: app.theme_cls.primary_light
+
+    MDLabel:
+        size: self.texture_size
+        y: root.height - self.height
+        size_hint_y: .2
+        text: "Sing Up"
+        font_style: 'H2'
+        theme_text_color: "Custom"
+        text_color: 1, 1, 1, 1
+        halign: "center"
+        id: label_sing_up
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        y: label_sing_up.y - self.height
+        padding: "20dp"
+        id: email
+        mode: "rectangle"
+        size_hint_x: 0.675
+        hint_text: "Email"
+        multiline: False
+        color_mode: "custom"
+        line_color_focus: 1, 1, 1, 1
+        line_color_normal: 1, 1, 1, 1
+
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        y: email.y - self.height - dp(10)
+        padding: "20dp"
+        id: passw
+        size_hint_x: 0.675
+        mode: "rectangle"
+        hint_text: "Password"
+        multiline: False
+        color_mode: "custom"
+        line_color_focus: 1, 1, 1, 1
+        line_color_normal: 1, 1, 1, 1
+        hint_text_color_normal: 1, 1, 1, 1
+
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        y: passw.y - self.height - dp(10)
+        padding: "20dp"
+        id: name
+        size_hint_x: 0.675
+        mode: "rectangle"
+        hint_text: "Name"
+        multiline: False
+        color_mode: "custom"
+        line_color_focus: 1, 1, 1, 1
+        line_color_normal: 1, 1, 1, 1
+
+    MDRaisedButton:
+        pos_hint: {'center_x': 0.5}
+        y: name.y - self.height - dp(50)
+        padding: "18dp"
+        text: "Sing In"
+        size_hint_x: 0.7
+        md_bg_color: app.theme_cls.primary_dark
+        text_color: 1, 1, 1, 1
+        halign: "center"
+        id: sing_in
+        on_release:
+            app.root.current = "Sing In"
+            root.manager.transition.direction = "left"
+
+    MDRaisedButton:
+        pos_hint: {'center_x': 0.5}
+        y: sing_in.y - self.height - dp(10)
+        id: sing_up
+        padding: "18dp"
+        text: "Sing Up"
+        size_hint_x: 0.7
+        md_bg_color: app.theme_cls.primary_dark
+        text_color: 1, 1, 1, 1
+        on_press:
+            root.sing_up()
+            root.manager.transition.direction = "left"
+
+    MDRaisedButton:
+        pos_hint: {'center_x': 0.5}
+        y: sing_up.y - self.height - dp(10)
+        padding: "18dp"
+        text: "ADMIN"
+        size_hint_x: 0.7
+        md_bg_color: app.theme_cls.primary_dark
+        text_color: 1, 1, 1, 1
+        halign: "center"
+        on_release:
+            app.root.current = "Second"
+            root.manager.transition.direction = "left"
+
+<EmployeeCard>:
+    name:"EmployeeCard"
+    FitImage:
+        size_hint_y: .45
+        y: root.height - self.height
+        id: photo_of_employee
+        source: root.source_photo
+
+    FitImage:
+        size_hint_y: .45
+        y: root.height - photo_of_employee.y + dp(60)
+        source: 'dark.png'
+        id: dark_photo
+
+    ScrollView:
+        y: dark_photo.y - self.height - dp(20)
+        size_hint_y: .45
+        do_scroll_y: True
+        do_scroll_x: False
+        MDList:
+            id: emotion_list
+            TwoLineListItem:
+                text: 'happy'
+                font_style: 'H6'
+                secondary_text: root.happy
+            TwoLineListItem:
+                text: 'sad'
+                font_style: 'H6'
+                secondary_text: root.sad
+            TwoLineListItem:
+                text: 'neutral'
+                font_style: 'H6'
+                secondary_text: root.neutral
+            TwoLineListItem:
+                text: 'angry'
+                font_style: 'H6'
+                secondary_text: root.angry
+            TwoLineListItem:
+                text: 'surprise'
+                font_style: 'H6'
+                secondary_text: root.surprise
+            TwoLineListItem:
+                text: 'fear'
+                font_style: 'H6'
+                secondary_text: root.fear
+            TwoLineListItem:
+                text: 'disgust'
+                font_style: 'H6'
+                secondary_text: root.disgust
+
+    MDRaisedButton:
+        id: back_home
+        size_hint_x: 1
+        md_bg_color: app.theme_cls.primary_dark
+        text: "Go back"
+        on_release:
+            app.root.current = "Second"
+            root.manager.transition.direction = "right"
+
+    MDLabel:
+        id: employee_name
+        text: root.name_of_employee
+        font_style: "H3"
+        bold: True
+        size_hint: None, None
+        -text_size: None, None
+        size: self.texture_size
+        theme_text_color: 'Custom'
+        text_color: 1, 1, 1, 1
+        y: photo_of_employee.y + self.height / 2
+        x: dp(20)
+
+
+<SecondWindow>:
+    name: "Second"
+    MDBoxLayout:
+        orientation: "vertical"
+        MDGridLayout:
+            cols: 1
+
+
+            MDToolbar:
+                id: toolbar
+                pos_hint: {"top": 1}
+                elevation: 10
+                title: "MDNavigationDrawer"
+                left_action_items: [["menu", lambda x: nav_drawer.set_state("open")]]
+
+            MDNavigationLayout:
+                x: toolbar.height
+
+                ScreenManager:
+                    id: screen_manager
+
+                    MDScreen:
+                        name: "EmployeePhoto"
+
+                        MDGridLayout:
+                            cols:1
+
+                            ScrollView:
+                                scroll_timeout: 250
+                                scroll_distance: 2000
+                                do_scroll_y: True
+                                do_scroll_x: False
+
+                                MDList:
+                                    hint_size: {'center_x': 0.5, 'center_y': 0.5}
+                                    padding: 20
+                                    id: card_view
+
+
+                    MDScreen:
+                        name: "Table"
+
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            pos_hint: {'center_x':0.5, 'center_y':0.5}
+                            padding: 30
+                            spacing: 20
+
+                            MDGridLayout:
+                                cols:1
+                                size_hint: 0.5, 0.5
+                                pos_hint: {"center_y": 0.5, "center_x": 0.5}
+
+                                MDList:
+
+                                    OneLineListItem:
+                                        text: 'rewt'
+
+                                        Image:
+                                            source:"img.png"
+
+                                MDLabel:
+
+                                    text: "Screen 2"
+                                    halign: "center"
+
+                                RelativeLayout:
+
+                                    MDCard:
+                                        id: employees_cards
+                                        orientation: "vertical"
+                                        padding: "8dp"
+                                        size_hint: None, None
+                                        size: "100dp", "100dp"
+                                        pos_hint: {"center_x": 0.5, "center_y": 0.7}
+
+                                        MDLabel:
+                                            text: "Title"
+                                            theme_text_color: "Secondary"
+                                            size_hint_y: None
+                                            height: self.texture_size[1]
+
+                                        MDSeparator:
+                                            height: "1dp"
+
+                                        MDLabel:
+                                            text: "Body"
+
+                                MDRectangleFlatButton:
+                                    text: "db"
+                                    halign: "center"
+                                    on_release:
+                                        root.manager.transition.direction = "right"
+
+                                MDRectangleFlatButton:
+                                    text: "Go back"
+                                    halign: "center"
+                                    on_release:
+                                        root.go_back()
+                                        root.manager.transition.direction = "right"
+
+                MDNavigationDrawer:
+                    id: nav_drawer
+
+                    ContentNavigationDrawer:
+
+                        screen_manager: screen_manager
+                        nav_drawer: nav_drawer
+
+<SingInWindow>:
+    name: "Sing In"
+
+    MDGridLayout:
+        md_bg_color: app.theme_cls.primary_dark
+        cols:1
+        padding: "50dp"
+
+        MDGridLayout:
+
+            cols:1
+            padding: "20dp"
+            MDLabel:
+                text: "Sing In"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                halign: "center"
+
+            MDTextField:
+                id: email_sing_in
+                mode: "rectangle"
+                hint_text: "Email"
+                multiline: False
+                color_mode: "custom"
+                line_color_focus: 1, 1, 1, 1
+                line_color_normal: 1, 1, 1, 1
+
+            MDTextField:
+                id: passw_sing_in
+                mode: "rectangle"
+                hint_text: "Password"
+                multiline: False
+                color_mode: "custom"
+                line_color_focus: 1, 1, 1, 1
+                line_color_normal: 1, 1, 1, 1
+                hint_text_color_normal: 1, 1, 1, 1
+
+        MDGridLayout:
+
+            cols:2
+            MDRectangleFlatButton:
+                text: "Sing In"
+                text_color: 1, 1, 1, 1
+                halign: "center"
+                on_release:
+                    root.sing_in()
+                    root.manager.transition.direction = "left"
+
+            MDRectangleFlatButton:
+                text: "Sing Up"
+                text_color: 1, 1, 1, 1
+                on_press:
+                    app.root.current = "Registration"
+                    root.manager.transition.direction = "left"
+
