@@ -23,9 +23,62 @@ from kivy.atlas import Atlas
 from kivymd.uix.list import IRightBodyTouch, OneLineAvatarIconListItem
 from firebase_admin import credentials, auth, db, storage
 import json
+import time
+from kivy.core.window import Window
+from kivy.lang import Builder
+
+from kivymd.app import MDApp
+from kivymd.uix.filemanager import MDFileManager
+from kivymd.toast import toast
+
+
 
 # glogal variebles
 employee_name = " "
+name_db = " "
+item_list_app = []
+class AddNewEmployee(MDScreen):
+    screenshot = StringProperty('unrecognize.jpg')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(on_keyboard=self.events)
+        self.manager_open = False
+        self.file_manager = MDFileManager(
+            exit_manager=self.exit_manager,
+            select_path=self.select_path
+        )
+
+    def file_manager_open(self):
+        self.file_manager.show('/')  # output manager to the screen
+        self.manager_open = True
+
+    def select_path(self, path):
+        '''It will be called when you click on the file name
+        or the catalog selection button.
+
+        :type path: str;
+        :param path: path to the selected directory or file;
+        '''
+
+        self.exit_manager()
+        toast(path)
+        print(path)
+
+    def exit_manager(self, *args):
+        '''Called when the user reaches the root of the directory tree.'''
+
+        self.manager_open = False
+        self.file_manager.close()
+
+    def events(self, instance, keyboard, keycode, text, modifiers):
+        '''Called when buttons are pressed on the mobile device.'''
+
+        if keyboard in (1001, 27):
+            if self.manager_open:
+                self.file_manager.back()
+        return True
+
 class RegistrationWindow(MDScreen):
 
     def sing_up(self):
@@ -47,14 +100,9 @@ class RegistrationWindow(MDScreen):
                 self.dialog.open()
             else:
                 firebase_admin.auth.create_user(email=email, password=password, display_name=name)
-                ref = db.reference("/Users")
-                ref.set({
-                    name:
-                    {
-                        u'password': password
-                    }
-                })
-                self.manager.current = "Second"
+                ref = db.reference(f"/Users/{name}")
+                ref.set({u'password': password})
+                self.manager.current = "Sing In"
     def close_dialog(self, obj):
         self.dialog.dismiss()
 
@@ -81,22 +129,31 @@ class SecondWindow(MDScreen):
 
         screen_manager = ObjectProperty()
         nav_drawer = ObjectProperty()
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        Clock.schedule_once(self.create_list)
-
-    def create_list(self, *args):
-        ref = db.reference(f"/Users/Sergey/")
+    def update_list(self):
+        global item_list_app
+        path = f"/Users/"
+        ref = db.reference('/Users/')
+        print(ref)
         item = ref.get()
+        print(item)
         item = str(item).replace("'", '"')
         obj = json.loads(item)
-        for i in range(len(obj['employees']) - 1):
-            self.ids.card_view.add_widget(OneLineListItem(
-                text=obj["employees"][f"{i}"]["first_name"] + " " + obj["employees"][f"{i}"]["nick_name"],
-                secondary_text="asdfgsdfg",
-                on_press=self.mycallback)
-            )
+        print(obj[f'{name_db}'])
+
+
+        for i in range(len(obj[name_db]['employees']) - 1):
+            if not str(obj[name_db]['employees'][i]["first_name"] + " " + obj[name_db]['employees'][i]["nick_name"]) in item_list_app:
+                item_list = OneLineListItem(
+                    text=str(obj[name_db]['employees'][i]["first_name"] + " " + obj[name_db]['employees'][i]["nick_name"]),
+                    secondary_text="asdfgsdfg",
+                    on_press=self.mycallback
+                    )
+
+                item_list_app.append(str(obj[name_db]['employees'][i]["first_name"] + " " + obj[name_db]['employees'][i]["nick_name"]))
+                self.ids.card_view.add_widget(item_list)
+                print(item_list_app)
+            else:
+                continue
     def mycallback(self, instance):
         global employee_name
         employee_name = instance.text
@@ -119,13 +176,21 @@ class EmployeeCard(MDScreen):
     disgust = StringProperty("disgust")
 
     def on_enter(self, *args):
+
         def on_enter(interval):
+            stor = storage.bucket()
             self.name_of_employee = employee_name
-            if not os.path.exists(f'{employee_name}.jpg'):
-                self.source_photo = f'unrecognize.jpg'
+            name_for_db_photo = employee_name.split(" ")
+            if not os.path.exists(f'{employee_name}.png'):
+                print(name_for_db_photo[0])
+                print(name_for_db_photo[1])
+                blob = stor.blob(f'image/{name_db}/photo_complete/{name_for_db_photo[0]}_{name_for_db_photo[1]}_neu.png')
+                blob.download_to_filename(f'employee_photo/{employee_name}.png')
+                time.sleep(0.5)
+                self.source_photo = f"employee_photo/{employee_name}.png"
             else:
                 self.source_photo = f'{employee_name}.jpg'
-            ref = db.reference(f"/Users/Sergey/")
+            ref = db.reference(f"/Users/{name_db}/")
             item = ref.get()
             item = str(item).replace("'", '"')
             obj = json.loads(item)
@@ -133,23 +198,24 @@ class EmployeeCard(MDScreen):
             print(obj)
             for i in range(len(obj['employees']) - 1):
                 print(i)
-                if obj['employees'][f'{i}']['first_name'] == name[0] and obj['employees'][f'{i}']['nick_name'] == name[1]:
-                    self.happy = str(obj['employees'][f'{i}']['happy'])
-                    self.sad = str(obj['employees'][f'{i}']['sad'])
-                    self.neutral = str(obj['employees'][f'{i}']['neutral'])
-                    self.angry = str(obj['employees'][f'{i}']['angry'])
-                    self.surprise = str(obj['employees'][f'{i}']['surprise'])
-                    self.fear = str(obj['employees'][f'{i}']['fear'])
-                    self.disgust = str(obj['employees'][f'{i}']['disgust'])
+                if obj['employees'][i]['first_name'] == name[0] and obj['employees'][i]['nick_name'] == name[1]:
+                    self.happy = str(obj['employees'][i]['happy'])
+                    self.sad = str(obj['employees'][i]['sad'])
+                    self.neutral = str(obj['employees'][i]['neutral'])
+                    self.angry = str(obj['employees'][i]['angry'])
+                    self.surprise = str(obj['employees'][i]['surprise'])
+                    self.fear = str(obj['employees'][i]['fear'])
+                    self.disgust = str(obj['employees'][i]['disgust'])
 
         Clock.schedule_once(on_enter)
 
 class SingInWindow(MDScreen):
     # sing in function
     def sing_in(self):
-
+        global name_db
         email = self.ids['email_sing_in'].text
         password = self.ids['passw_sing_in'].text
+        print(password)
 
         close_btn = MDFlatButton(text="Close", on_release=self.close_dialog)
 
@@ -165,13 +231,15 @@ class SingInWindow(MDScreen):
             else:
                 name = firebase_admin.auth.get_user_by_email(email)
                 name_db = name.display_name
+                name_for_get_employee = name.display_name
+                print(name_db)
 
 
                 ref = db.reference(f"/Users/{name_db}/password")
                 password2 = ref.order_by_key().get()
                 print(password2)
 
-                if password == password2:
+                if password == str(password2):
                     self.manager.current = "Second"
                 else:
                     self.dialog = MDDialog(title="Error", text="Wrong password",
@@ -198,7 +266,6 @@ class MyMainApp(MDApp):
             },
             'storageBucket': 'emotion-recognition-v1.appspot.com'
 	    })
-
         self.theme_cls.primary_palette = "BlueGray"
         return Builder.load_file('main.kv')
 

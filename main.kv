@@ -5,6 +5,7 @@ WindowManager:
     SecondWindow:
     SingInWindow:
     EmployeeCard:
+    AddNewEmployee:
 
 <ContentNavigationDrawer>:
 
@@ -25,6 +26,37 @@ WindowManager:
                     root.nav_drawer.set_state("close")
                     root.screen_manager.current = "Table"
                     root.screen_manager.transition.direction = "left"
+<AddNewEmployee>:
+    name: "AddNewEmployee"
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        y: root.height - self.height - dp(20)
+        id: employee_add_name
+        mode: "rectangle"
+        size_hint_x: 0.675
+        hint_text: "First name and last name"
+        multiline: False
+    MDGridLayout:
+        cols: 1
+
+
+        MDLabel:
+            font_style: "H6"
+            bold: True
+            halign: "center"
+            size_hint: 0.5, 0.7
+            id: label_add
+
+            text: "Please, choose a video with employee"
+
+
+        FitImage:
+            id:image
+            size_hint_y: .45
+            y: label_add.y - self.height - dp(20)
+            source: root.screenshot
+
+
 
 <RegistrationWindow>:
     name: "Registration"
@@ -74,7 +106,7 @@ WindowManager:
         id: name
         size_hint_x: 0.675
         mode: "rectangle"
-        hint_text: "Name"
+        hint_text: "Name like Ivan_Ivanov"
         multiline: False
         color_mode: "custom"
         line_color_focus: 1, 1, 1, 1
@@ -203,6 +235,7 @@ WindowManager:
 
             MDToolbar:
                 id: toolbar
+                y: root.height - self.height
                 pos_hint: {"top": 1}
                 elevation: 10
                 title: "MDNavigationDrawer"
@@ -225,12 +258,22 @@ WindowManager:
                                 scroll_distance: 2000
                                 do_scroll_y: True
                                 do_scroll_x: False
-
                                 MDList:
                                     hint_size: {'center_x': 0.5, 'center_y': 0.5}
                                     padding: 20
                                     id: card_view
-
+                            MDFloatingActionButton:
+                                id:add_user
+                                icon: "plus"
+                                md_bg_color: app.theme_cls.primary_light
+                                on_release: app.root.current = "AddNewEmployee"
+                            MDRaisedButton:
+                                id: update_list
+                                size_hint_x: 1
+                                md_bg_color: app.theme_cls.primary_dark
+                                text: "Update list"
+                                on_release:
+                                    root.update_list()
 
                     MDScreen:
                         name: "Table"
@@ -304,56 +347,68 @@ WindowManager:
 
 <SingInWindow>:
     name: "Sing In"
+    md_bg_color: app.theme_cls.primary_light
 
-    MDGridLayout:
+    MDLabel:
+        size: self.texture_size
+        y: root.height - self.height
+        size_hint_y: .2
+        text: "Sing In"
+        font_style: 'H2'
+        theme_text_color: "Custom"
+        text_color: 1, 1, 1, 1
+        halign: "center"
+        id: label_sing_in
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        y: label_sing_in.y - self.height
+        padding: "20dp"
+        id: email_sing_in
+        mode: "rectangle"
+        size_hint_x: 0.675
+        hint_text: "Email"
+        multiline: False
+        color_mode: "custom"
+        line_color_focus: 1, 1, 1, 1
+        line_color_normal: 1, 1, 1, 1
+
+    MDTextField:
+        pos_hint: {'center_x': 0.5}
+        y: email_sing_in.y - self.height - dp(10)
+        padding: "20dp"
+        id: passw_sing_in
+        size_hint_x: 0.675
+        mode: "rectangle"
+        hint_text: "Password"
+        multiline: False
+        color_mode: "custom"
+        line_color_focus: 1, 1, 1, 1
+        line_color_normal: 1, 1, 1, 1
+        hint_text_color_normal: 1, 1, 1, 1
+
+    MDRaisedButton:
+        pos_hint: {'center_x': 0.5}
+        y: passw_sing_in.y - self.height - dp(50)
+        padding: "18dp"
+        text: "Sing In"
+        size_hint_x: 0.7
         md_bg_color: app.theme_cls.primary_dark
-        cols:1
-        padding: "50dp"
+        text_color: 1, 1, 1, 1
+        halign: "center"
+        id: sing_in
+        on_release:
+            root.sing_in()
+            root.manager.transition.direction = "left"
 
-        MDGridLayout:
-
-            cols:1
-            padding: "20dp"
-            MDLabel:
-                text: "Sing In"
-                theme_text_color: "Custom"
-                text_color: 1, 1, 1, 1
-                halign: "center"
-
-            MDTextField:
-                id: email_sing_in
-                mode: "rectangle"
-                hint_text: "Email"
-                multiline: False
-                color_mode: "custom"
-                line_color_focus: 1, 1, 1, 1
-                line_color_normal: 1, 1, 1, 1
-
-            MDTextField:
-                id: passw_sing_in
-                mode: "rectangle"
-                hint_text: "Password"
-                multiline: False
-                color_mode: "custom"
-                line_color_focus: 1, 1, 1, 1
-                line_color_normal: 1, 1, 1, 1
-                hint_text_color_normal: 1, 1, 1, 1
-
-        MDGridLayout:
-
-            cols:2
-            MDRectangleFlatButton:
-                text: "Sing In"
-                text_color: 1, 1, 1, 1
-                halign: "center"
-                on_release:
-                    root.sing_in()
-                    root.manager.transition.direction = "left"
-
-            MDRectangleFlatButton:
-                text: "Sing Up"
-                text_color: 1, 1, 1, 1
-                on_press:
-                    app.root.current = "Registration"
-                    root.manager.transition.direction = "left"
-
+    MDRaisedButton:
+        pos_hint: {'center_x': 0.5}
+        y: sing_in.y - self.height - dp(10)
+        id: sing_up
+        padding: "18dp"
+        text: "Sing Up"
+        size_hint_x: 0.7
+        md_bg_color: app.theme_cls.primary_dark
+        text_color: 1, 1, 1, 1
+        on_press:
+            app.root.current = "Registration"
+            root.manager.transition.direction = "left"
